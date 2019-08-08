@@ -1,6 +1,11 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose')
 var app = express();
+
+// Connect mongodb
+mongoose.connect("mongodb://localhost/bookworm", {useNewUrlParser: true})
+mongoose.set('useCreateIndex', true);
 
 // parse incoming requests
 app.use(bodyParser.json());
