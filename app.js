@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
 var session = require('express-session')
+var mongoStore = require('connect-mongo')(session)
 var app = express();
 
 // Connect mongodb
@@ -12,7 +13,10 @@ mongoose.set('useCreateIndex', true);
 app.use(session({
 	secret: "test string",
 	resave: true,
-	saveUninitialized: false
+	saveUninitialized: false,
+	store: new mongoStore({
+		mongooseConnection: mongoose.connection
+	})
 }))
 
 // Make user ID global 
