@@ -1,12 +1,25 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
+var session = require('express-session')
 var app = express();
 
 // Connect mongodb
 mongoose.connect("mongodb://localhost/bookworm", {useNewUrlParser: true})
 mongoose.set('useCreateIndex', true);
 
+// express sessions config 
+app.use(session({
+	secret: "test string",
+	resave: true,
+	saveUninitialized: false
+}))
+
+// Make user ID global 
+app.use(function(req, res, next){
+	res.locals.currentUser = req.session.userId
+	next()
+})
 // parse incoming requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
