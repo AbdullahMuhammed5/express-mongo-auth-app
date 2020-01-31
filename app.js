@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
 var session = require('express-session')
 var mongoStore = require('connect-mongo')(session)
+const flash = require('express-flash-messages');
 var app = express();
 
 // Connect mongodb
@@ -18,6 +19,9 @@ app.use(session({
 		mongooseConnection: mongoose.connection
 	})
 }))
+
+// flash messages
+app.use(flash());
 
 // Make user ID global 
 app.use(function(req, res, next){

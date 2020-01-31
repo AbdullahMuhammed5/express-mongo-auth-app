@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/user.js')
 var middlewares = require('../middlewares')
+const {rules, validation} = require('../middlewares/registerValidation')
 
 // GET / Register
 router.get('/register', middlewares.isLoggedIn, (req, res, next)=>{
@@ -9,20 +10,14 @@ router.get('/register', middlewares.isLoggedIn, (req, res, next)=>{
 })
 
 // POST / Register
-router.post('/register', (req, res, next)=>{
-	if (req.body.email && req.body.username &&req.body.favoriteBook &&
-		req.body.password && req.body.confirmPassword) {
-		// ensure password fields is matched
-		if(req.body.password !== req.body.confirmPassword){
-			var error = new Error('Password doesn\'t match')
-			error.status = 400
-			return next(error)
-		}
+router.post('/register', rules(), validation, (req, res, next)=>{
+  	
+		const {username, email, favoriteBook, password} = req.body;
 		var userData = {
-			username: req.body.username,
-			email: req.body.email,
-			favoriteBook: req.body.favoriteBook,
-			password: req.body.password
+			username,
+			email,
+			favoriteBook,
+			password
 		}
 		User.create(userData, (err, user)=>{
 			if (err) {
@@ -32,11 +27,6 @@ router.post('/register', (req, res, next)=>{
 				res.redirect('/profile')
 			}
 		})
-	} else{
-		var error = new Error('All Fields are require')
-		error.status = 400
-		return next(error)
-	}
 })
 
 // GET /login
@@ -51,7 +41,7 @@ router.post('/login', (req, res, next)=>{
 			if(err || !user){
 				var error = new Error("Wrong Email or Password..!!")
 				error.status = 401
-				return next(err)
+				return next(error)
 			} else {
 				req.session.userId = user._id
 				return res.redirect('/profile')
