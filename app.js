@@ -1,32 +1,33 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
+var mongoose = require('mongoose')
+var session = require('express-session')
+var mongoStore = require('connect-mongo')(session)
+const flash = require('express-flash-messages');
 var app = express();
 
-// mongodb connection
-mongoose.connect("mongodb://localhost:27017/bookworm");
-var db = mongoose.connection;
-// mongo error
-db.on('error', console.error.bind(console, 'connection error:'));
+// Connect mongodb
+mongoose.connect("mongodb://localhost/bookworm", {useNewUrlParser: true})
+mongoose.set('useCreateIndex', true);
 
-// use sessions for tracking logins
+// express sessions config 
 app.use(session({
-  secret: 'treehouse loves you',
-  resave: true,
-  saveUninitialized: false,
-  store: new MongoStore({
-    mongooseConnection: db
-  })
-}));
+	secret: "test string",
+	resave: true,
+	saveUninitialized: false,
+	store: new mongoStore({
+		mongooseConnection: mongoose.connection
+	})
+}))
 
-// make user ID available in templates
-app.use(function (req, res, next) {
-  res.locals.currentUser = req.session.userId;
-  next();
-});
+// flash messages
+app.use(flash());
 
+// Make user ID global 
+app.use(function(req, res, next){
+	res.locals.currentUser = req.session.userId
+	next()
+})
 // parse incoming requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
